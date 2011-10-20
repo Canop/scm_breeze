@@ -19,7 +19,7 @@
 git_remove_history() {
   # Make sure we're at the root of a git repo
   if [ ! -d .git ]; then
-      echo "Error: must run this script from the root of a git repository"
+      echo "Error: This script must be run from the root of a git repository"
       return
   fi
   # Remove all paths passed as arguments from the history of the repo
@@ -29,3 +29,29 @@ git_remove_history() {
   rm -rf .git/refs/original/ && git reflog expire --all &&  git gc --aggressive --prune
 }
 
+
+# Stage a range of lines from a file
+# -------------------------------------------------------------------
+# If you wanted to commit lines 15 to 25 of README.markdown, you would run:
+#    git_partial_add README.markdown:15-25
+git_partial_add() {
+  # Make sure we're at the root of a git repo
+  if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "Error: This script must be run from a git repository"
+    return
+  fi
+  if [ -z "$1" ]; then return 1; fi
+
+
+
+  # Expand args and process resulting set of files.
+  for file in $(git_expand_args "$@"); do
+    changed_file=$(mktemp -t tmp.XXXXXXXXXX)
+    cp -f file $changed_file
+    git checkout $file
+
+
+
+  done
+  echo "#"
+}
